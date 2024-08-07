@@ -1,0 +1,19 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.pyding.at.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "at.refmap.json",
+  "verbose": true,
+  "mixins": [
+    "ATArmorMixin",
+    "ATItemMixin",
+    "ATItemsMixin",
+    "ATSwordsMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
