@@ -43,7 +43,7 @@ public class ATCommands {
                                             ServerPlayer player = context.getSource().getPlayerOrException();
                                             ATUtil.giveBonus(player.getMainHandItem().getItem());
                                             String element = tier+"-"+player.getMainHandItem().getDescriptionId()+",";
-                                            ATUtil.addItemConfig(element);
+                                            ATUtil.addItemConfig(element,player);
                                             player.sendSystemMessage(Component.literal("Tier " + tier + " has been set to item in hands"));
                                             return Command.SINGLE_SUCCESS;
                                         })
@@ -60,7 +60,7 @@ public class ATCommands {
                                                     ItemStack stack = chest.getItem(i);
                                                     ATUtil.giveBonus(stack.getItem());
                                                     String element = tier+"-"+stack.getDescriptionId()+",";
-                                                    ATUtil.addItemConfig(element);
+                                                    ATUtil.addItemConfig(element,player);
                                                 }
                                                 player.sendSystemMessage(Component.literal("Tier " + tier + " has been set to all items in this chest"));
                                             } else player.sendSystemMessage(Component.literal("No chest found :((("));
@@ -76,7 +76,7 @@ public class ATCommands {
                                             int tier = IntegerArgumentType.getInteger(context, "tier");
                                             ServerPlayer player = context.getSource().getPlayerOrException();
                                             String item = tier+"-"+player.getMainHandItem().getDescriptionId();
-                                            ATUtil.removeItemConfig(item);
+                                            ATUtil.removeItemConfig(item,player);
                                             player.sendSystemMessage(Component.literal("Tier " + tier + " has been removed from item in hands"));
                                             player.sendSystemMessage(Component.literal("Restart to update item stats from Tiers"));
                                             return Command.SINGLE_SUCCESS;
@@ -93,7 +93,7 @@ public class ATCommands {
                                                 for(int i = 0; i < chest.getContainerSize(); i++){
                                                     ItemStack stack = chest.getItem(i);
                                                     String item = tier+"-"+stack.getDescriptionId();
-                                                    ATUtil.removeItemConfig(item);
+                                                    ATUtil.removeItemConfig(item,player);
                                                 }
                                                 player.sendSystemMessage(Component.literal("Tier " + tier + " has been removed from all items in this chest"));
                                             } else player.sendSystemMessage(Component.literal("No chest found :((("));
@@ -109,7 +109,7 @@ public class ATCommands {
                                             ServerPlayer player = context.getSource().getPlayerOrException();
                                             for(String element: ATUtil.getItemsWithTier(tier)){
                                                 String item = tier+"-"+element;
-                                                ATUtil.removeItemConfig(item);
+                                                ATUtil.removeItemConfig(item,player);
                                             }
                                             player.sendSystemMessage(Component.literal("Tier " + tier + " has been removed from item in hands"));
                                             player.sendSystemMessage(Component.literal("Restart to update item stats from Tiers"));
@@ -140,7 +140,7 @@ public class ATCommands {
                                             boolean found = false;
                                             for(LivingEntity entity: ATUtil.ray(player,3,60,true)){
                                                 String name = tier+"-"+entity.getType().getDescriptionId()+",";
-                                                ATUtil.addEntityConfig(name);
+                                                ATUtil.addEntityConfig(name,player);
                                                 found = true;
                                                 player.sendSystemMessage(Component.literal("Entity "+ entity + "is now Tier: " + tier));
                                             }
@@ -159,7 +159,7 @@ public class ATCommands {
                                             ItemStack stack = player.getMainHandItem();
                                             if(stack.getItem() instanceof SpawnEggItem egg){
                                                 String element = tier+"-"+egg.getType(egg.getShareTag(stack))+",";
-                                                ATUtil.addEntityConfig(element);
+                                                ATUtil.addEntityConfig(element,player);
                                                 player.sendSystemMessage(Component.literal("Tier " + tier + " has been set to " +egg.getType(egg.getShareTag(stack))));
                                             }
                                             return Command.SINGLE_SUCCESS;
@@ -177,7 +177,7 @@ public class ATCommands {
                                                     ItemStack stack = chest.getItem(i);
                                                     if(stack.getItem() instanceof SpawnEggItem egg){
                                                         String element = tier+"-"+egg.getType(egg.getShareTag(stack))+",";
-                                                        ATUtil.addEntityConfig(element);
+                                                        ATUtil.addEntityConfig(element,player);
                                                         player.sendSystemMessage(Component.literal("Tier " + tier + " has been set to " +egg.getType(egg.getShareTag(stack))));
                                                     }
                                                 }
@@ -188,26 +188,44 @@ public class ATCommands {
                                 )
                         )
                         .then(Commands.literal("auto")
+                                .then(Commands.argument("maxHealth", IntegerArgumentType.integer())
+                                    .executes(context -> {
+                                        int health = IntegerArgumentType.getInteger(context, "tier");
+                                        ServerPlayer player = context.getSource().getPlayerOrException();
+                                        for(EntityType<?> type: ForgeRegistries.ENTITY_TYPES.getValues()){
+                                            Entity entity = type.create(player.getCommandSenderWorld());
+                                            if (entity instanceof LivingEntity livingEntity) {
+                                                int tier = 10;
+                                                while (tier > 0){
+                                                    if(livingEntity.getMaxHealth() < health) {
+                                                        health -= 20;
+                                                        tier -= 1;
+                                                    } else {
+                                                        String element = tier+"-"+type+",";
+                                                        ATUtil.addEntityConfig(element,player);
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        player.sendSystemMessage(Component.literal("I hope all worked fine..."));
+                                        return Command.SINGLE_SUCCESS;
+                                    })
+                                )
                                 .executes(context -> {
                                     ServerPlayer player = context.getSource().getPlayerOrException();
-                                    for(EntityType<?> entity: ForgeRegistries.ENTITY_TYPES){
-                                        LivingEntity livingEntity = (LivingEntity) entity.create(player.getCommandSenderWorld());
-                                        if(livingEntity == null)
-                                            continue;
-
-                                    }
                                     for(EntityType<?> type: ForgeRegistries.ENTITY_TYPES.getValues()){
                                         Entity entity = type.create(player.getCommandSenderWorld());
                                         if (entity instanceof LivingEntity livingEntity) {
-                                            int health = 200;
+                                            int health = 180;
                                             int tier = 10;
                                             while (tier > 0){
-                                                if(livingEntity.getMaxHealth() > health) {
+                                                if(livingEntity.getMaxHealth() < health) {
                                                     health -= 20;
                                                     tier -= 1;
                                                 } else {
-                                                    String element = tier+"-"+entity+",";
-                                                    ATUtil.addEntityConfig(element);
+                                                    String element = tier+"-"+type+",";
+                                                    ATUtil.addEntityConfig(element,player);
                                                     break;
                                                 }
                                             }
@@ -227,7 +245,7 @@ public class ATCommands {
                                             boolean found = false;
                                             for(LivingEntity entity: ATUtil.ray(player,3,60,true)){
                                                 String name = tier+"-"+entity.getType().getDescriptionId()+",";
-                                                ATUtil.removeEntityConfig(name);
+                                                ATUtil.removeEntityConfig(name,player);
                                                 found = true;
                                                 player.sendSystemMessage(Component.literal("Entity "+ entity + "is removed from Tier: " + tier));
                                             }
@@ -246,7 +264,7 @@ public class ATCommands {
                                             ItemStack stack = player.getMainHandItem();
                                             if(stack.getItem() instanceof SpawnEggItem egg){
                                                 String element = tier+"-"+egg.getType(egg.getShareTag(stack))+",";
-                                                ATUtil.removeEntityConfig(element);
+                                                ATUtil.removeEntityConfig(element,player);
                                                 player.sendSystemMessage(Component.literal("Tier " + tier + " removed from " +egg.getType(egg.getShareTag(stack))));
                                             }
                                             return Command.SINGLE_SUCCESS;
@@ -264,7 +282,7 @@ public class ATCommands {
                                                     ItemStack stack = chest.getItem(i);
                                                     if(stack.getItem() instanceof SpawnEggItem egg){
                                                         String element = tier+"-"+egg.getType(egg.getShareTag(stack))+",";
-                                                        ATUtil.removeEntityConfig(element);
+                                                        ATUtil.removeEntityConfig(element,player);
                                                         player.sendSystemMessage(Component.literal("Tier " + tier + " removed from " +egg.getType(egg.getShareTag(stack))));
                                                     }
                                                 }

@@ -20,6 +20,7 @@ public class ConfigHandler {
         public final ForgeConfigSpec.IntValue maxTier;
         public final ForgeConfigSpec.BooleanValue creativeMax;
         public final ForgeConfigSpec.BooleanValue enableExp;
+        public final ForgeConfigSpec.DoubleValue startingExpPercent;
         public final ForgeConfigSpec.BooleanValue pickUp;
         public final ForgeConfigSpec.BooleanValue craftLock;
         public final ForgeConfigSpec.IntValue damagePercentBonus;
@@ -35,6 +36,7 @@ public class ConfigHandler {
             maxTier = builder.comment("Defines maximum Tier value.").defineInRange("maxTier", 10, 1, 2100000000);
             creativeMax = builder.comment("Enables max Tier in Creative.").define("creativeMax", true);
             enableExp = builder.comment("Enables exp system to lvl up Tier.").define("enableExp", true);
+            startingExpPercent = builder.comment("Percentage for second Tier and higher.").defineInRange("startingExpPercent", 0.3, 0.01, 1);
             pickUp = builder.comment("Defines should player pick up items with higher Tier or not.").define("pickUp", true);
             craftLock = builder.comment("Set to true if player can't craft higher Tier item.").define("craftLock", false);
             itemTiers = builder.comment("Tiers for Items: ").define("itemTiers","");

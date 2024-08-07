@@ -31,6 +31,8 @@ public class PacketHandler {
         net.registerMessage(id(),SendPlayerNbtToClient.class, SendPlayerNbtToClient::encode, SendPlayerNbtToClient::decode, SendPlayerNbtToClient::handle);
         net.registerMessage(id(),SendPlayerCapaToClient.class, SendPlayerCapaToClient::encode, SendPlayerCapaToClient::decode, SendPlayerCapaToClient::handle);
         net.registerMessage(id(),SendEntityNbtToClient.class, SendEntityNbtToClient::encode, SendEntityNbtToClient::decode, SendEntityNbtToClient::handle);
+        net.registerMessage(id(),HashMapClient.class, HashMapClient::encode, HashMapClient::decode, HashMapClient::handle);
+
     }
     public static void sendToClient(Object packet, ServerPlayer player) {
         INSTANCE.sendTo(packet, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);

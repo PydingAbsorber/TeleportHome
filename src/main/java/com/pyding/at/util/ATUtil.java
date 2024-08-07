@@ -6,9 +6,12 @@ import com.pyding.at.capability.PlayerCapabilityProviderVP;
 import com.pyding.at.mixin.ATArmorMixin;
 import com.pyding.at.mixin.ATItemMixin;
 import com.pyding.at.mixin.ATSwordsMixin;
+import com.pyding.at.network.PacketHandler;
+import com.pyding.at.network.packets.HashMapClient;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -16,6 +19,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -60,12 +64,18 @@ public class ATUtil {
     public static HashMap<String,Integer> itemTiers = new HashMap<>();
     public static HashMap<String,Integer> entityTiers = new HashMap<>();
 
-    public static void initMaps(){
+    public static void initMaps(Player player){
         if(itemTiers.isEmpty()){
-            initMap(ConfigHandler.COMMON.itemTiers.get().toString(),itemTiers);
+            if(player instanceof ServerPlayer serverPlayer) {
+                initMap(ConfigHandler.COMMON.itemTiers.get().toString(), itemTiers);
+                PacketHandler.sendToClient(new HashMapClient(ConfigHandler.COMMON.itemTiers.get().toString(), 1), serverPlayer);
+            }
         }
         if(entityTiers.isEmpty()){
-            initMap(ConfigHandler.COMMON.entityTiers.get().toString(),entityTiers);
+            if(player instanceof ServerPlayer serverPlayer) {
+                initMap(ConfigHandler.COMMON.entityTiers.get().toString(), entityTiers);
+                PacketHandler.sendToClient(new HashMapClient(ConfigHandler.COMMON.entityTiers.get().toString(), 2), serverPlayer);
+            }
         }
     }
 
@@ -138,7 +148,7 @@ public class ATUtil {
         });
     }
 
-    public static void removeItemConfig(String remove){
+    public static void removeItemConfig(String remove,Player player){
         String add = "";
         for(String element : ConfigHandler.COMMON.itemTiers.get().toString().split(",")){
             if(!element.equals(remove))
@@ -146,18 +156,18 @@ public class ATUtil {
         }
         ConfigHandler.COMMON.itemTiers.set(add);
         itemTiers.clear();
-        initMaps();
+        initMaps(player);
     }
 
-    public static void addItemConfig(String add){
+    public static void addItemConfig(String add,Player player){
         if(add.contains("block.minecraft.air"))
             return;
         ConfigHandler.COMMON.itemTiers.set(ConfigHandler.COMMON.itemTiers.get()+add);
         itemTiers.clear();
-        initMaps();
+        initMaps(player);
     }
 
-    public static void removeEntityConfig(String remove){
+    public static void removeEntityConfig(String remove,Player player){
         String add = "";
         for(String element : ConfigHandler.COMMON.entityTiers.get().toString().split(",")){
             if(!element.equals(remove))
@@ -165,13 +175,13 @@ public class ATUtil {
         }
         ConfigHandler.COMMON.entityTiers.set(add);
         entityTiers.clear();
-        initMaps();
+        initMaps(player);
     }
 
-    public static void addEntityConfig(String add){
+    public static void addEntityConfig(String add,Player player){
         ConfigHandler.COMMON.entityTiers.set(ConfigHandler.COMMON.entityTiers.get()+add);
         entityTiers.clear();
-        initMaps();
+        initMaps(player);
     }
 
     public static float calculateBonus(float damage,int playerTier, int creatureTier,boolean isPlayerAttacking) {
@@ -288,9 +298,8 @@ public class ATUtil {
             totalExpForCurrentLevel += getItemsWithTier(level).size() * level;
         }
 
-        double initialPercentage = 0.30;
-        double finalPercentage = 1.00;
-        double incrementPercentage = (finalPercentage - initialPercentage) / (maxLevel - 1);
+        double initialPercentage = ConfigHandler.COMMON.startingExpPercent.get();
+        double incrementPercentage = (1 - initialPercentage) / (maxLevel - 1);
         double usagePercentage = initialPercentage + (tier - 1) * incrementPercentage;
         if (tier == maxLevel-1)
             return totalExpForCurrentLevel;

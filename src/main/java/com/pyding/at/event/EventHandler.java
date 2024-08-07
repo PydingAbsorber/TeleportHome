@@ -202,6 +202,9 @@ public class EventHandler {
                         entityTier += ATUtil.getTier(armor);
                     }
                     entityTier /= 4;
+                } else if(tier < entityTier && player.getPersistentData().getLong("ATCd") < System.currentTimeMillis()){
+                    player.getPersistentData().putLong("ATCd",System.currentTimeMillis()+1000);
+                    player.sendSystemMessage(Component.translatable("at.chat.2",entityTier));
                 }
                 event.setAmount(ATUtil.calculateBonus(event.getAmount(),tier,entityTier,true));
             });
@@ -313,7 +316,7 @@ public class EventHandler {
         player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
             cap.sync(player);
         });
-        ATUtil.initMaps();
+        ATUtil.initMaps(player);
         ATUtil.getItems();
     }
 
