@@ -28,6 +28,7 @@ public class ConfigHandler {
         public final ForgeConfigSpec.IntValue armorPercentBonus;
         public final ForgeConfigSpec.IntValue attackPercentBonus;
         public final ForgeConfigSpec.LongValue timeToDrop;
+        public final ForgeConfigSpec.DoubleValue minimumDamage;
         public final ForgeConfigSpec.ConfigValue itemTiers;
         public final ForgeConfigSpec.ConfigValue entityTiers;
         public final ForgeConfigSpec.ConfigValue blockTiers;
@@ -43,6 +44,7 @@ public class ConfigHandler {
             entityTiers = builder.comment("Tiers for Entities: ").define("entityTiers","");
             blockTiers = builder.comment("Tiers for Blocks: ").define("blockTiers","");
             timeToDrop = builder.comment("Time until items with higher Tier will drop from player. Set to 0 to disable.").defineInRange("timeToDrop", 5000, 0, Long.MAX_VALUE);
+            minimumDamage = builder.comment("Minimum damage that higher Tier entity receives.").defineInRange("minimumDamage", 0.1, 0, Float.MAX_VALUE);
 
             damagePercentBonus = builder.comment("Maximum bonus from max Tier tool damage dealt to Tier 1 creature. Works reverse also.").defineInRange("damagePercentBonus", 400, 1, 2100000000);
             durabilityPercentBonus = builder.comment("Maximum durability bonus for Max Tier.").defineInRange("durabilityPercentBonus", 150, 1, 2100000000);

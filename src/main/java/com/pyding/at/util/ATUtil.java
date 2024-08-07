@@ -190,7 +190,7 @@ public class ATUtil {
             tierDifference = playerTier - creatureTier;
         else tierDifference = creatureTier - playerTier;
         double bonusPerTier = (double) ConfigHandler.COMMON.damagePercentBonus.get() /  ConfigHandler.COMMON.maxTier.get();
-        return (float) Math.max(1, damage*(1+(tierDifference*bonusPerTier)/100));
+        return (float) Math.max(ConfigHandler.COMMON.minimumDamage.get(), damage*(1+(tierDifference*bonusPerTier)/100));
     }
 
     public static float calculateToolBonus(int toolTier, int maxBonus) {

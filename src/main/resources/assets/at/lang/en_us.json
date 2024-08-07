@@ -9,5 +9,5 @@
   "at.get.tier": "Your Tier: %s",
   "at.ignored": "Doesn't require matching Tier!",
   "at.discovered": "Not discovered yet.",
-  "at.chat.2": "§cThis creature has %s Tier, your damage significantly lowered."
+  "at.chat.2": "§cThis creature has %s §cTier, your damage significantly lowered."
 }

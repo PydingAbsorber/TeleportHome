@@ -203,7 +203,7 @@ public class EventHandler {
                     }
                     entityTier /= 4;
                 } else if(tier < entityTier && player.getPersistentData().getLong("ATCd") < System.currentTimeMillis()){
-                    player.getPersistentData().putLong("ATCd",System.currentTimeMillis()+1000);
+                    player.getPersistentData().putLong("ATCd",System.currentTimeMillis()+10000);
                     player.sendSystemMessage(Component.translatable("at.chat.2",entityTier));
                 }
                 event.setAmount(ATUtil.calculateBonus(event.getAmount(),tier,entityTier,true));
