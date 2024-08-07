@@ -4,7 +4,7 @@
   "at.chat.break": "§cYou must have Tier %s §ctool to break that.",
   "at.chat.craft": "§cYou must have Tier %s §cto craft that.",
   "at.tier": "Tier: %s",
-  "at.tier.2": "Exp left for the next Tier: %s/%s",
+  "at.tier.2": "Experience: %s/%s",
   "at.give": "§aYour Tier upgraded to %s",
   "at.get.tier": "Your Tier: %s",
   "at.ignored": "Doesn't require matching Tier!",

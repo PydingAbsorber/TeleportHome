@@ -17,6 +17,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
@@ -60,7 +61,7 @@ public class EventHandler {
             if(player != null) {
                 player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                     if(cap.getTier(player) < ConfigHandler.COMMON.maxTier.get()) {
-                        event.getToolTip().add(Component.translatable("at.get.tier", cap.getTier(player)).withStyle(ATUtil.getColor(tier)));
+                        event.getToolTip().add(Component.translatable("at.get.tier", cap.getTier(player)).withStyle(ATUtil.getColor(cap.getTier(player))));
                         event.getToolTip().add(Component.translatable("at.tier.2", cap.getExp(), ATUtil.getExpNext(cap.getTier(player))).withStyle(ATUtil.getColor(tier)));
                         if(ATUtil.notContains(cap.getItems(),stack.getDescriptionId()))
                             event.getToolTip().add(Component.translatable("at.discovered").withStyle(ChatFormatting.GRAY));
@@ -135,8 +136,12 @@ public class EventHandler {
                         }
                     }
                 });
+                if(ATUtil.getTier(player.getOffhandItem()) > cap.getTier(player) && ATUtil.notIgnored(player.getOffhandItem())){
+                    player.getCommandSenderWorld().addFreshEntity(new ItemEntity(player.getCommandSenderWorld(),player.getX(),player.getY(),player.getZ(),player.getOffhandItem(),0,0,0));
+                    player.getOffhandItem().setCount(0);
+                }
                 long drop = ConfigHandler.COMMON.timeToDrop.get();
-                if(drop > 0) {
+                if(drop > 0 && player.tickCount % 20 == 0) {
                     long time = player.getPersistentData().getLong("ATTime");
                     if(time == 0) {
                         List<ItemStack> list = ATUtil.getAllItems(player);
@@ -308,6 +313,14 @@ public class EventHandler {
             });
         });
         event.getOriginal().invalidateCaps();
+    }
+
+    @SubscribeEvent
+    public static void spawnEvent(PlayerEvent.PlayerRespawnEvent event){
+        Player player = event.getEntity();
+        player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+           cap.sync(player);
+        });
     }
 
     @SubscribeEvent
