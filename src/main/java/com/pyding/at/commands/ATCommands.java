@@ -4,6 +4,7 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.pyding.at.capability.PlayerCapabilityProviderVP;
 import com.pyding.at.util.ATUtil;
 import com.pyding.at.util.ConfigHandler;
 import net.minecraft.commands.CommandBuildContext;
@@ -30,6 +31,7 @@ import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import static com.pyding.at.util.ATUtil.*;
 import static net.minecraft.commands.Commands.createValidationContext;
 
 public class ATCommands {
@@ -118,14 +120,30 @@ public class ATCommands {
                                 )
                         )
                 )
-                .then(Commands.literal("addToPlayer").requires(sender -> sender.hasPermission(2))
+                .then(Commands.literal("addTierPlayer").requires(sender -> sender.hasPermission(2))
+                        .then(Commands.argument("player", EntityArgument.player())
+                                .executes(context -> {
+                                    ServerPlayer player = EntityArgument.getPlayer(context, "player");
+                                    player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                                        cap.addTier(player);
+                                        cap.setExp(player,ATUtil.getMaxExp(cap.getTier(player)-1));
+                                    });
+                                    player.sendSystemMessage(Component.literal("Your Tier increased"));
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                        )
+                )
+                .then(Commands.literal("setTierPlayer").requires(sender -> sender.hasPermission(2))
                         .then(Commands.argument("player", EntityArgument.player())
                                 .then(Commands.argument("tier", IntegerArgumentType.integer())
                                         .executes(context -> {
                                             int tier = IntegerArgumentType.getInteger(context, "tier");
                                             ServerPlayer player = EntityArgument.getPlayer(context, "player");
-                                            ATUtil.addTierToPlayer(player);
-                                            player.sendSystemMessage(Component.literal("You have now Tier: " + tier));
+                                            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                                                cap.setTier(player,tier);
+                                                cap.setExp(player,ATUtil.getMaxExp(tier-1));
+                                            });
+                                            player.sendSystemMessage(Component.literal("You have " + tier + " Tier now"));
                                             return Command.SINGLE_SUCCESS;
                                         })
                                 )
@@ -333,6 +351,34 @@ public class ATCommands {
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )
+                )
+                .then(Commands.literal("autoTiersItems")
+                        .executes(context -> {
+                            ServerPlayer player = context.getSource().getPlayerOrException();
+                            ATUtil.addItemConfig(ATUtil.getBaseTiers(),player);
+                            player.sendSystemMessage(Component.literal("Tiers for a lot of Items applied automatically"));
+                            return Command.SINGLE_SUCCESS;
+                        })
+                )
+                .then(Commands.literal("clearItemTiers")
+                        .executes(context -> {
+                            ServerPlayer player = context.getSource().getPlayerOrException();
+                            ConfigHandler.COMMON.itemTiers.set("");
+                            itemTiers.clear();
+                            initMaps(player);
+                            player.sendSystemMessage(Component.literal("Item Tiers cleared"));
+                            return Command.SINGLE_SUCCESS;
+                        })
+                )
+                .then(Commands.literal("clearEntityTiers")
+                        .executes(context -> {
+                            ServerPlayer player = context.getSource().getPlayerOrException();
+                            ConfigHandler.COMMON.entityTiers.set("");
+                            entityTiers.clear();
+                            initMaps(player);
+                            player.sendSystemMessage(Component.literal("Item Tiers cleared"));
+                            return Command.SINGLE_SUCCESS;
+                        })
                 )
         );
     }

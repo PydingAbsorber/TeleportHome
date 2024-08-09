@@ -124,21 +124,23 @@ public class EventHandler {
                 for(int i = 0; i < player.getInventory().armor.size(); i++){
                     ItemStack stack = player.getInventory().armor.get(i);
                     if(ATUtil.getTier(stack) > cap.getTier(player) && ATUtil.notIgnored(stack)){
-                        player.getInventory().armor.set(i,ItemStack.EMPTY);
                         player.drop(stack,true);
+                        player.getInventory().armor.set(i,ItemStack.EMPTY);
                     } else cap.addItem(stack,player);
                 }
                 CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
                     for (SlotResult curio : handler.findCurios(itemStack -> itemStack.getItem() instanceof ICurioItem)) {
                         if(ATUtil.getTier(curio.stack()) > cap.getTier(player) && ATUtil.notIgnored(curio.stack())){
-                            player.drop(curio.stack(),true);
+                            ItemStack stack = curio.stack();
+                            player.drop(stack,true);
                             curio.stack().setCount(0);
                         }
                     }
                 });
                 if(ATUtil.getTier(player.getOffhandItem()) > cap.getTier(player) && ATUtil.notIgnored(player.getOffhandItem())){
-                    player.getCommandSenderWorld().addFreshEntity(new ItemEntity(player.getCommandSenderWorld(),player.getX(),player.getY(),player.getZ(),player.getOffhandItem(),0,0,0));
-                    player.getOffhandItem().setCount(0);
+                    ItemStack stack = player.getOffhandItem();
+                    player.drop(stack,true);
+                    player.getInventory().offhand.set(0,ItemStack.EMPTY);
                 }
                 long drop = ConfigHandler.COMMON.timeToDrop.get();
                 if(drop > 0 && player.tickCount % 20 == 0) {
@@ -196,17 +198,24 @@ public class EventHandler {
     public void damageEventLowest(LivingDamageEvent event){
         if(event.getSource() == null || event.getSource().getEntity() == null)
             return;
+        int maxTier = ConfigHandler.COMMON.maxTier.get();
         if(event.getSource().getEntity() instanceof Player player) {
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                 ItemStack stack = player.getItemInHand(player.getUsedItemHand());
                 int tier = ATUtil.getTier(stack);
+                if(cap.getTier(player) == maxTier)
+                    tier = maxTier;
                 int entityTier = ATUtil.getTier(event.getEntity());
                 if(event.getEntity() instanceof Player dealerPlayer) {
                     entityTier = 0;
-                    for(ItemStack armor: dealerPlayer.getInventory().armor){
-                        entityTier += ATUtil.getTier(armor);
+                    if(cap.getTier(dealerPlayer) == maxTier)
+                        entityTier = maxTier;
+                    else {
+                        for (ItemStack armor : dealerPlayer.getInventory().armor) {
+                            entityTier += ATUtil.getTier(armor);
+                        }
+                        entityTier /= 4;
                     }
-                    entityTier /= 4;
                 } else if(tier < entityTier && player.getPersistentData().getLong("ATCd") < System.currentTimeMillis()){
                     player.getPersistentData().putLong("ATCd",System.currentTimeMillis()+10000);
                     player.sendSystemMessage(Component.translatable("at.chat.2",entityTier));
@@ -216,13 +225,20 @@ public class EventHandler {
         } else if(event.getEntity() instanceof Player player){
             player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                 int tier = 0;
-                for(ItemStack stack: player.getInventory().armor){
-                    tier += ATUtil.getTier(stack);
+                if(cap.getTier(player) == maxTier)
+                    tier = maxTier;
+                else {
+                    for (ItemStack stack : player.getInventory().armor) {
+                        tier += ATUtil.getTier(stack);
+                    }
+                    tier /= 4;
                 }
-                tier /= 4;
                 int entityTier = 0;
-                if(event.getSource().getEntity() instanceof Player dealerPlayer)
+                if(event.getSource().getEntity() instanceof Player dealerPlayer) {
                     entityTier = ATUtil.getTier(dealerPlayer.getMainHandItem());
+                    if(cap.getTier(dealerPlayer) == maxTier)
+                        entityTier = maxTier;
+                }
                 else if(event.getSource().getEntity() instanceof LivingEntity entity) entityTier = ATUtil.getTier(entity);
                 event.setAmount(ATUtil.calculateBonus(event.getAmount(),tier,entityTier,false));
             });
