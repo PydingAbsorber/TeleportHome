@@ -73,36 +73,31 @@ public class ATCommands {
                 )
                 .then(Commands.literal("removeItem").requires(sender -> sender.hasPermission(2))
                         .then(Commands.literal("hand")
-                                .then(Commands.argument("tier", IntegerArgumentType.integer())
-                                        .executes(context -> {
-                                            int tier = IntegerArgumentType.getInteger(context, "tier");
-                                            ServerPlayer player = context.getSource().getPlayerOrException();
-                                            String item = tier+"-"+player.getMainHandItem().getDescriptionId();
-                                            ATUtil.removeItemConfig(item,player);
-                                            player.sendSystemMessage(Component.literal("Tier " + tier + " has been removed from item in hands"));
-                                            player.sendSystemMessage(Component.literal("Restart to update item stats from Tiers"));
-                                            return Command.SINGLE_SUCCESS;
-                                        })
-                                )
+                                .executes(context -> {
+                                    ServerPlayer player = context.getSource().getPlayerOrException();
+                                    int tier = ATUtil.getTier(player.getMainHandItem());
+                                    String item = tier+"-"+player.getMainHandItem().getDescriptionId();
+                                    ATUtil.removeItemConfig(item,player);
+                                    player.sendSystemMessage(Component.literal("Tier " + tier + " has been removed from item in hands"));
+                                    player.sendSystemMessage(Component.literal("Restart to update item stats from Tiers"));
+                                    return Command.SINGLE_SUCCESS;
+                                })
                         )
                         .then(Commands.literal("chest")
-                                .then(Commands.argument("tier", IntegerArgumentType.integer())
-                                        .executes(context -> {
-                                            int tier = IntegerArgumentType.getInteger(context, "tier");
-                                            ServerPlayer player = context.getSource().getPlayerOrException();
-                                            BlockPos pos = ATUtil.getRayBlock(player,3);
-                                            if(pos != null && player.getCommandSenderWorld().getBlockEntity(pos) != null && player.getCommandSenderWorld().getBlockEntity(pos) instanceof ChestBlockEntity chest){
-                                                for(int i = 0; i < chest.getContainerSize(); i++){
-                                                    ItemStack stack = chest.getItem(i);
-                                                    String item = tier+"-"+stack.getDescriptionId();
-                                                    ATUtil.removeItemConfig(item,player);
-                                                }
-                                                player.sendSystemMessage(Component.literal("Tier " + tier + " has been removed from all items in this chest"));
-                                            } else player.sendSystemMessage(Component.literal("No chest found :((("));
-                                            player.sendSystemMessage(Component.literal("Restart to update item stats from Tiers"));
-                                            return Command.SINGLE_SUCCESS;
-                                        })
-                                )
+                                .executes(context -> {
+                                    ServerPlayer player = context.getSource().getPlayerOrException();
+                                    BlockPos pos = ATUtil.getRayBlock(player,3);
+                                    if(pos != null && player.getCommandSenderWorld().getBlockEntity(pos) != null && player.getCommandSenderWorld().getBlockEntity(pos) instanceof ChestBlockEntity chest){
+                                        for(int i = 0; i < chest.getContainerSize(); i++){
+                                            ItemStack stack = chest.getItem(i);
+                                            String item = ATUtil.getTier(stack)+"-"+stack.getDescriptionId();
+                                            ATUtil.removeItemConfig(item,player);
+                                        }
+                                        player.sendSystemMessage(Component.literal("Tiers has been removed from all items in this chest"));
+                                    } else player.sendSystemMessage(Component.literal("No chest found :((("));
+                                    player.sendSystemMessage(Component.literal("Restart to update item stats from Tiers"));
+                                    return Command.SINGLE_SUCCESS;
+                                })
                         )
                         .then(Commands.literal("all")
                                 .then(Commands.argument("tier", IntegerArgumentType.integer())
@@ -208,7 +203,7 @@ public class ATCommands {
                         .then(Commands.literal("auto")
                                 .then(Commands.argument("maxHealth", IntegerArgumentType.integer())
                                     .executes(context -> {
-                                        int health = IntegerArgumentType.getInteger(context, "tier");
+                                        int health = IntegerArgumentType.getInteger(context, "maxHealth");
                                         ServerPlayer player = context.getSource().getPlayerOrException();
                                         for(EntityType<?> type: ForgeRegistries.ENTITY_TYPES.getValues()){
                                             Entity entity = type.create(player.getCommandSenderWorld());
@@ -262,7 +257,7 @@ public class ATCommands {
                                             int tier = IntegerArgumentType.getInteger(context, "tier");
                                             boolean found = false;
                                             for(LivingEntity entity: ATUtil.ray(player,3,60,true)){
-                                                String name = tier+"-"+entity.getType().getDescriptionId()+",";
+                                                String name = tier+"-"+entity.getType().getDescriptionId();
                                                 ATUtil.removeEntityConfig(name,player);
                                                 found = true;
                                                 player.sendSystemMessage(Component.literal("Entity "+ entity + "is removed from Tier: " + tier));
@@ -281,7 +276,7 @@ public class ATCommands {
                                             ServerPlayer player = context.getSource().getPlayerOrException();
                                             ItemStack stack = player.getMainHandItem();
                                             if(stack.getItem() instanceof SpawnEggItem egg){
-                                                String element = tier+"-"+egg.getType(egg.getShareTag(stack))+",";
+                                                String element = tier+"-"+egg.getType(egg.getShareTag(stack));
                                                 ATUtil.removeEntityConfig(element,player);
                                                 player.sendSystemMessage(Component.literal("Tier " + tier + " removed from " +egg.getType(egg.getShareTag(stack))));
                                             }
@@ -299,7 +294,7 @@ public class ATCommands {
                                                 for(int i = 0; i < chest.getContainerSize(); i++){
                                                     ItemStack stack = chest.getItem(i);
                                                     if(stack.getItem() instanceof SpawnEggItem egg){
-                                                        String element = tier+"-"+egg.getType(egg.getShareTag(stack))+",";
+                                                        String element = tier+"-"+egg.getType(egg.getShareTag(stack));
                                                         ATUtil.removeEntityConfig(element,player);
                                                         player.sendSystemMessage(Component.literal("Tier " + tier + " removed from " +egg.getType(egg.getShareTag(stack))));
                                                     }
@@ -355,7 +350,7 @@ public class ATCommands {
                 .then(Commands.literal("autoTiersItems")
                         .executes(context -> {
                             ServerPlayer player = context.getSource().getPlayerOrException();
-                            ATUtil.addItemConfig(ATUtil.getBaseTiers(),player);
+                            ATUtil.addItemConfig(ATUtil.getBaseItems(),player);
                             player.sendSystemMessage(Component.literal("Tiers for a lot of Items applied automatically"));
                             return Command.SINGLE_SUCCESS;
                         })

@@ -8,6 +8,6 @@
   "at.give": "§aYour Tier upgraded to %s",
   "at.get.tier": "Your Tier: %s",
   "at.ignored": "Doesn't require matching Tier!",
-  "at.discovered": "Not discovered yet.",
+  "at.discovered": "Can be discovered to gain %s exp.",
   "at.chat.2": "§cThis creature has %s §cTier, your damage significantly lowered."
 }

@@ -3,9 +3,6 @@ package com.pyding.at.event;
 import com.pyding.at.AscendTiers;
 import com.pyding.at.capability.PlayerCapabilityProviderVP;
 import com.pyding.at.commands.ATCommands;
-import com.pyding.at.mixin.ATArmorMixin;
-import com.pyding.at.mixin.ATItemMixin;
-import com.pyding.at.mixin.ATSwordsMixin;
 import com.pyding.at.util.ATUtil;
 import com.pyding.at.util.ConfigHandler;
 import net.minecraft.ChatFormatting;
@@ -13,21 +10,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.SwordItem;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.event.ItemAttributeModifierEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
@@ -44,7 +32,6 @@ import top.theillusivec4.curios.api.SlotResult;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
 import java.util.List;
-import java.util.UUID;
 
 @Mod.EventBusSubscriber(modid = AscendTiers.MODID)
 public class EventHandler {
@@ -62,9 +49,11 @@ public class EventHandler {
                 player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
                     if(cap.getTier(player) < ConfigHandler.COMMON.maxTier.get()) {
                         event.getToolTip().add(Component.translatable("at.get.tier", cap.getTier(player)).withStyle(ATUtil.getColor(cap.getTier(player))));
-                        event.getToolTip().add(Component.translatable("at.tier.2", cap.getExp(), ATUtil.getExpNext(cap.getTier(player))).withStyle(ATUtil.getColor(tier)));
-                        if(ATUtil.notContains(cap.getItems(),stack.getDescriptionId()))
-                            event.getToolTip().add(Component.translatable("at.discovered").withStyle(ChatFormatting.GRAY));
+                        if(ConfigHandler.COMMON.enableExp.get()) {
+                            event.getToolTip().add(Component.translatable("at.tier.2", cap.getExp(), ATUtil.getExpNext(cap.getTier(player))).withStyle(ATUtil.getColor(tier)));
+                            if (ATUtil.notContains(cap.getItems(), stack.getDescriptionId()))
+                                event.getToolTip().add(Component.translatable("at.discovered", ATUtil.getTier(stack)).withStyle(ChatFormatting.GRAY));
+                        }
                     }
                 });
             }
@@ -131,7 +120,7 @@ public class EventHandler {
                 CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
                     for (SlotResult curio : handler.findCurios(itemStack -> itemStack.getItem() instanceof ICurioItem)) {
                         if(ATUtil.getTier(curio.stack()) > cap.getTier(player) && ATUtil.notIgnored(curio.stack())){
-                            ItemStack stack = curio.stack();
+                            ItemStack stack = new ItemStack(curio.stack().getItem());
                             player.drop(stack,true);
                             curio.stack().setCount(0);
                         }
