@@ -11,13 +11,13 @@ import net.minecraftforge.common.util.LazyOptional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class PlayerCapabilityProviderVP implements ICapabilityProvider, INBTSerializable<CompoundTag> {
-    public static Capability<PlayerCapabilityVP> playerCap = CapabilityManager.get(new CapabilityToken<PlayerCapabilityVP>() {});
-    private PlayerCapabilityVP capabilityVP = null;
-    private final LazyOptional<PlayerCapabilityVP> optional = LazyOptional.of(this::createPlayerCapability);
-    private PlayerCapabilityVP createPlayerCapability(){
+public class PlayerCapabilityProviderAT implements ICapabilityProvider, INBTSerializable<CompoundTag> {
+    public static Capability<PlayerCapabilityAT> playerCap = CapabilityManager.get(new CapabilityToken<PlayerCapabilityAT>() {});
+    private PlayerCapabilityAT capabilityVP = null;
+    private final LazyOptional<PlayerCapabilityAT> optional = LazyOptional.of(this::createPlayerCapability);
+    private PlayerCapabilityAT createPlayerCapability(){
         if(this.capabilityVP == null){
-            this.capabilityVP = new PlayerCapabilityVP();
+            this.capabilityVP = new PlayerCapabilityAT();
         }
         return this.capabilityVP;
     }

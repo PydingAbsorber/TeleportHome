@@ -2,28 +2,19 @@ package com.pyding.at.commands;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.pyding.at.capability.PlayerCapabilityProviderVP;
+import com.pyding.at.capability.PlayerCapabilityProviderAT;
 import com.pyding.at.util.ATUtil;
 import com.pyding.at.util.ConfigHandler;
-import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.commands.arguments.ResourceArgument;
-import net.minecraft.commands.arguments.ResourceLocationArgument;
-import net.minecraft.commands.synchronization.SuggestionProviders;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SpawnEggItem;
@@ -32,7 +23,6 @@ import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import static com.pyding.at.util.ATUtil.*;
-import static net.minecraft.commands.Commands.createValidationContext;
 
 public class ATCommands {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -119,7 +109,7 @@ public class ATCommands {
                         .then(Commands.argument("player", EntityArgument.player())
                                 .executes(context -> {
                                     ServerPlayer player = EntityArgument.getPlayer(context, "player");
-                                    player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                                    player.getCapability(PlayerCapabilityProviderAT.playerCap).ifPresent(cap -> {
                                         cap.addTier(player);
                                         cap.setExp(player,ATUtil.getMaxExp(cap.getTier(player)-1));
                                     });
@@ -134,7 +124,7 @@ public class ATCommands {
                                         .executes(context -> {
                                             int tier = IntegerArgumentType.getInteger(context, "tier");
                                             ServerPlayer player = EntityArgument.getPlayer(context, "player");
-                                            player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+                                            player.getCapability(PlayerCapabilityProviderAT.playerCap).ifPresent(cap -> {
                                                 cap.setTier(player,tier);
                                                 cap.setExp(player,ATUtil.getMaxExp(tier-1));
                                             });
@@ -372,6 +362,16 @@ public class ATCommands {
                             entityTiers.clear();
                             initMaps(player);
                             player.sendSystemMessage(Component.literal("Item Tiers cleared"));
+                            return Command.SINGLE_SUCCESS;
+                        })
+                )
+                .then(Commands.literal("clearProgress")
+                        .executes(context -> {
+                            ServerPlayer player = context.getSource().getPlayerOrException();
+                            player.getCapability(PlayerCapabilityProviderAT.playerCap).ifPresent(cap -> {
+                                cap.clear(player);
+                            });
+                            player.sendSystemMessage(Component.literal("Progress cleared"));
                             return Command.SINGLE_SUCCESS;
                         })
                 )

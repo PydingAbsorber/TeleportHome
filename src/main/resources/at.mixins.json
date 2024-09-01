@@ -12,6 +12,8 @@
     "ATSwordsMixin"
   ],
   "client": [
+    "ATMenuMixin",
+    "ATSearchMixin"
   ],
   "injectors": {
     "defaultRequire": 1

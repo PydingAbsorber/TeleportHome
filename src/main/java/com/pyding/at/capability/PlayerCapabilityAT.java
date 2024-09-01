@@ -12,14 +12,14 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.capabilities.AutoRegisterCapability;
 
 @AutoRegisterCapability
-public class PlayerCapabilityVP {
+public class PlayerCapabilityAT {
     private int tier = 1;
     private int exp = 0;
     private String items = "";
 
     public void addItem(ItemStack stack, Player player){
         int rank = ATUtil.getTier(stack);
-        if(rank > 0) {
+        if(rank > 0 && !player.getCommandSenderWorld().isClientSide) {
             String name = stack.getDescriptionId();
             if (ATUtil.notContains(items, name)) {
                 items += name + ",";
@@ -27,6 +27,13 @@ public class PlayerCapabilityVP {
                 sync(player);
             }
         }
+    }
+
+    public void clear(Player player){
+        items = "";
+        exp = 0;
+        tier = 1;
+        sync(player);
     }
 
     public String getItems(){
@@ -41,7 +48,7 @@ public class PlayerCapabilityVP {
     }
 
     public int getTier(Player player){
-        if(player.isCreative())
+        if(player.isCreative() || player.isSpectator())
             return ConfigHandler.COMMON.maxTier.get();
         return tier;
     }
@@ -65,7 +72,7 @@ public class PlayerCapabilityVP {
         sync(player);
     }
 
-    public void copyNBT(PlayerCapabilityVP source){
+    public void copyNBT(PlayerCapabilityAT source){
         tier = source.tier;
         exp = source.exp;
         items = source.items;
@@ -83,18 +90,12 @@ public class PlayerCapabilityVP {
         nbt.putString("ATItems",items);
     }
 
-    public CompoundTag getNbt(){
-        CompoundTag nbt = new CompoundTag();
-        nbt.putInt("ATTiers",tier);
-        nbt.putInt("ATExp",exp);
-        nbt.putString("ATItems",items);
-        return nbt;
-    }
-
     public void sync(Player player){
         if(player.getCommandSenderWorld().isClientSide)
             return;
         ServerPlayer serverPlayer = (ServerPlayer) player;
-        PacketHandler.sendToClient(new SendPlayerCapaToClient(this.getNbt()),serverPlayer);
+        CompoundTag tag = new CompoundTag();
+        saveNBT(tag);
+        PacketHandler.sendToClient(new SendPlayerCapaToClient(tag),serverPlayer);
     }
 }

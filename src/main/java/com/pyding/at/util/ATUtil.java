@@ -2,7 +2,7 @@ package com.pyding.at.util;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
-import com.pyding.at.capability.PlayerCapabilityProviderVP;
+import com.pyding.at.capability.PlayerCapabilityProviderAT;
 import com.pyding.at.mixin.ATArmorMixin;
 import com.pyding.at.mixin.ATItemMixin;
 import com.pyding.at.mixin.ATSwordsMixin;
@@ -10,7 +10,6 @@ import com.pyding.at.network.PacketHandler;
 import com.pyding.at.network.packets.HashMapClient;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -19,34 +18,19 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
-import top.theillusivec4.curios.api.CuriosApi;
-import top.theillusivec4.curios.api.SlotResult;
-import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ATUtil {
-    public static List<ItemStack> getCurioList(Player player){
-        List<SlotResult> result = new ArrayList<>();
-        CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
-            result.addAll(handler.findCurios(itemStack -> itemStack.getItem() instanceof ICurioItem));
-        });
-        List<ItemStack> stacks = new ArrayList<>();
-        for(SlotResult hitResult: result){
-            stacks.add(hitResult.stack());
-        }
-        return stacks;
-    }
 
 
     public static List<Item> items = new ArrayList<>();
@@ -65,17 +49,17 @@ public class ATUtil {
     public static HashMap<String,Integer> entityTiers = new HashMap<>();
 
     public static void initMaps(Player player){
-        if(itemTiers.isEmpty()){
-            if(player instanceof ServerPlayer serverPlayer) {
+        if(player instanceof ServerPlayer serverPlayer) {
+            if(itemTiers.isEmpty()){
                 initMap(ConfigHandler.COMMON.itemTiers.get().toString(), itemTiers);
-                PacketHandler.sendToClient(new HashMapClient(ConfigHandler.COMMON.itemTiers.get().toString(), 1), serverPlayer);
             }
+            PacketHandler.sendToClient(new HashMapClient(ConfigHandler.COMMON.itemTiers.get().toString(), 1), serverPlayer);
         }
-        if(entityTiers.isEmpty()){
-            if(player instanceof ServerPlayer serverPlayer) {
+        if(player instanceof ServerPlayer serverPlayer) {
+            if(entityTiers.isEmpty()){
                 initMap(ConfigHandler.COMMON.entityTiers.get().toString(), entityTiers);
-                PacketHandler.sendToClient(new HashMapClient(ConfigHandler.COMMON.entityTiers.get().toString(), 2), serverPlayer);
             }
+            PacketHandler.sendToClient(new HashMapClient(ConfigHandler.COMMON.entityTiers.get().toString(), 2), serverPlayer);
         }
     }
 
@@ -96,6 +80,28 @@ public class ATUtil {
                 result.add(entry.getKey());
             }
         }
+        return result;
+    }
+
+    public static List<ItemStack> getStacksWithTier(int targetTier) {
+        List<ItemStack> result = new ArrayList<>();
+        for(Item item: ForgeRegistries.ITEMS){
+            if(getTier(item) == targetTier){
+                result.add(new ItemStack(item));
+            }
+        }
+        return result;
+    }
+
+    public static List<ItemStack> getStacksWithTierLeft(int targetTier, Player player) {
+        List<ItemStack> result = new ArrayList<>();
+        player.getCapability(PlayerCapabilityProviderAT.playerCap).ifPresent(cap -> {
+            for(Item item: ForgeRegistries.ITEMS){
+                if(getTier(item) == targetTier && notContains(cap.getItems(), item.getDescriptionId())){
+                    result.add(new ItemStack(item));
+                }
+            }
+        });
         return result;
     }
 
@@ -143,7 +149,7 @@ public class ATUtil {
     }
 
     public static void addTierToPlayer(Player player){
-        player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+        player.getCapability(PlayerCapabilityProviderAT.playerCap).ifPresent(cap -> {
            cap.addTier(player);
         });
     }
@@ -344,7 +350,20 @@ public class ATUtil {
     }
 
     public static boolean notIgnored(ItemStack stack){
+        if(!stack.hasTag())
+            return true;
         return !stack.getOrCreateTag().getBoolean("ATIgnore");
+    }
+
+    public static Integer extractTier(String input, String word) {
+        String regex = word + "\\s*[:]?\\s*(\\d+)";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(input);
+
+        if (matcher.find()) {
+            return Integer.parseInt(matcher.group(1));
+        }
+        return 0;
     }
 
     public static String getBaseItems(){

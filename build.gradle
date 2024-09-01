@@ -17,7 +17,7 @@ plugins {
     id 'org.spongepowered.mixin' version '0.7.+'
 }
 
-version = '1.0.4'
+version = '1.0.5'
 group = 'com.pyding.at' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'at'
 
@@ -142,6 +142,10 @@ repositories {
     maven {
         url = "https://maven.theillusivec4.top/"
     }
+    maven {
+        name = "BlameJared Maven"
+        url = "https://maven.blamejared.com/"
+    }
     flatDir {
        dir 'libs'
     }
@@ -155,7 +159,11 @@ dependencies {
     //1.20.1
     minecraft 'net.minecraftforge:forge:1.20.1-47.1.44'
     runtimeOnly fg.deobf("top.theillusivec4.curios:curios-forge:5.7.0+1.20.1")
-    compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:5.7.0+1.20.1:api")
+    implementation fg.deobf("top.theillusivec4.curios:curios-forge:5.7.0+1.20.1:api")
+
+    implementation fg.deobf("mezz.jei:jei-1.20.1-forge-api:15.2.0.27")
+    runtimeOnly(fg.deobf("mezz.jei:jei-1.20.1-forge:15.2.0.27"))
+
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
     //implementation name: 'AttributeFix-Forge-1.20.1-21.0.1'
 

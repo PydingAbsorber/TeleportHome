@@ -42,7 +42,9 @@ public class HashMapClient {
     private static void handle2(String map, int id) {
         if(id == 1)
             ATUtil.initMap(map,ATUtil.itemTiers);
-        else if(id == 2)
-            ATUtil.initMap(map,ATUtil.entityTiers);
+        else if(id == 2) {
+            ATUtil.initMap(map, ATUtil.entityTiers);
+            ATUtil.getItems();
+        }
     }
 }

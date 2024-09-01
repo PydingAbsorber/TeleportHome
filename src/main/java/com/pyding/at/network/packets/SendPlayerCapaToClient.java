@@ -1,6 +1,6 @@
 package com.pyding.at.network.packets;
 
-import com.pyding.at.capability.PlayerCapabilityProviderVP;
+import com.pyding.at.capability.PlayerCapabilityProviderAT;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.nbt.CompoundTag;
@@ -37,7 +37,7 @@ public class SendPlayerCapaToClient {
     @OnlyIn(Dist.CLIENT)
     private void handle2() {
         LocalPlayer player = Minecraft.getInstance().player;
-        player.getCapability(PlayerCapabilityProviderVP.playerCap).ifPresent(cap -> {
+        player.getCapability(PlayerCapabilityProviderAT.playerCap).ifPresent(cap -> {
             cap.loadNBT(tag);
         });
     }
