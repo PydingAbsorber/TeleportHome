@@ -251,6 +251,8 @@ public class EventHandler {
                 else if(event.getSource().getEntity() instanceof LivingEntity entity) entityTier = ATUtil.getTier(entity);
                 event.setAmount(ATUtil.calculateBonus(event.getAmount(),tier,entityTier,false));
             });
+        } else if(event.getSource().getEntity() instanceof LivingEntity livingEntity){
+            event.setAmount(ATUtil.calculateBonus(event.getAmount(),ATUtil.getTier(livingEntity),ATUtil.getTier(event.getEntity()),false));
         }
     }
 
