@@ -43,7 +43,7 @@ public class AscendTiers
         MinecraftForge.EVENT_BUS.register(eventHandler);
         FMLJavaModLoadingContext.get().getModEventBus().register(PROXY);
         MinecraftForge.EVENT_BUS.register(PROXY);
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ConfigHandler.COMMON_SPEC); //bye  bye
+        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ConfigHandler.COMMON_SPEC);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) //pre init

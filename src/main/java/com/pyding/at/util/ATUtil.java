@@ -49,18 +49,19 @@ public class ATUtil {
     public static HashMap<String,Integer> entityTiers = new HashMap<>();
 
     public static void initMaps(Player player){
-        if(player instanceof ServerPlayer serverPlayer) {
-            if(itemTiers.isEmpty()){
-                initMap(ConfigHandler.COMMON.itemTiers.get().toString(), itemTiers);
-            }
+        if(itemTiers.isEmpty()){
+            initMap(ConfigHandler.COMMON.itemTiers.get().toString(), itemTiers);
+        }
+        /*if(player instanceof ServerPlayer serverPlayer) {
             PacketHandler.sendToClient(new HashMapClient(ConfigHandler.COMMON.itemTiers.get().toString(), 1), serverPlayer);
+        }*/
+        if(entityTiers.isEmpty()){
+            initMap(ConfigHandler.COMMON.entityTiers.get().toString(), entityTiers);
         }
-        if(player instanceof ServerPlayer serverPlayer) {
-            if(entityTiers.isEmpty()){
-                initMap(ConfigHandler.COMMON.entityTiers.get().toString(), entityTiers);
-            }
+        getItems();
+        /*if(player instanceof ServerPlayer serverPlayer) {
             PacketHandler.sendToClient(new HashMapClient(ConfigHandler.COMMON.entityTiers.get().toString(), 2), serverPlayer);
-        }
+        }*/
     }
 
     public static void initMap(String input, HashMap<String,Integer> map){
