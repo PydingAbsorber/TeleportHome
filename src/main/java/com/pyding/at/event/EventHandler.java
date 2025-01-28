@@ -55,13 +55,18 @@ public class EventHandler {
                         if (ATUtil.notContains(cap.getItems(), stack.getDescriptionId())) {
                             String token = "";
                             if(ATCompat.jeiLoaded()) {
-                                Random random = new Random(tier);
-                                StringBuilder result = new StringBuilder();
-                                for (int i = 0; i < 3; i++) {
-                                    char randomLetter = (char) ('A' + random.nextInt(26));
-                                    result.append(randomLetter);
+                                if(tier <= 10){
+                                    token = Component.translatable("at.token."+tier).getString();
                                 }
-                                token = result.toString();
+                                else {
+                                    Random random = new Random(tier);
+                                    StringBuilder result = new StringBuilder();
+                                    for (int i = 0; i < 3; i++) {
+                                        char randomLetter = (char) ('A' + random.nextInt(26));
+                                        result.append(randomLetter);
+                                    }
+                                    token = result.toString();
+                                }
                             }
                             event.getToolTip().add(Component.translatable("at.discovered",token).withStyle(ChatFormatting.GRAY));
                         }
@@ -118,7 +123,7 @@ public class EventHandler {
     public static void tick(LivingEvent.LivingTickEvent event){
         if(event.getEntity() instanceof Player player){
             if(player.tickCount % 20 == 0){
-                ATUtil.initMaps(player);
+                ATUtil.initMaps();
             }
             player.getCapability(PlayerCapabilityProviderAT.playerCap).ifPresent(cap -> {
                 if(player.getCommandSenderWorld().isClientSide)
@@ -362,8 +367,7 @@ public class EventHandler {
         player.getCapability(PlayerCapabilityProviderAT.playerCap).ifPresent(cap -> {
             cap.sync(player);
         });
-        ATUtil.initMaps(player);
-        ATUtil.getItems();
+        ATUtil.syncData();
     }
 
     @SubscribeEvent

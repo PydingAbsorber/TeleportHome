@@ -2,6 +2,7 @@ package com.pyding.at.util;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
+import com.pyding.at.capability.PlayerCapabilityAT;
 import com.pyding.at.capability.PlayerCapabilityProviderAT;
 import com.pyding.at.mixin.ATArmorMixin;
 import com.pyding.at.mixin.ATItemMixin;
@@ -48,7 +49,7 @@ public class ATUtil {
     public static HashMap<String,Integer> itemTiers = new HashMap<>();
     public static HashMap<String,Integer> entityTiers = new HashMap<>();
 
-    public static void initMaps(Player player){
+    public static void initMaps(){
         if(itemTiers.isEmpty()){
             initMap(ConfigHandler.COMMON.itemTiers.get().toString(), itemTiers);
         }
@@ -125,6 +126,8 @@ public class ATUtil {
     }
 
     public static int getTier(LivingEntity entity){
+        if(isNightmareBoss(entity))
+            return ConfigHandler.COMMON.maxTier.get();
         if(entityTiers.containsKey(entity.getType().getDescriptionId()))
             return entityTiers.get(entity.getType().getDescriptionId());
         return 0;
@@ -162,16 +165,14 @@ public class ATUtil {
                 add += element + ",";
         }
         ConfigHandler.COMMON.itemTiers.set(add);
-        itemTiers.clear();
-        initMaps(player);
+        syncData();
     }
 
     public static void addItemConfig(String add,Player player){
         if(add.contains("block.minecraft.air"))
             return;
         ConfigHandler.COMMON.itemTiers.set(ConfigHandler.COMMON.itemTiers.get()+add);
-        itemTiers.clear();
-        initMaps(player);
+        syncData();
     }
 
     public static void removeEntityConfig(String remove,Player player){
@@ -181,14 +182,12 @@ public class ATUtil {
                 add += element + ",";
         }
         ConfigHandler.COMMON.entityTiers.set(add);
-        entityTiers.clear();
-        initMaps(player);
+        syncData();
     }
 
     public static void addEntityConfig(String add,Player player){
         ConfigHandler.COMMON.entityTiers.set(ConfigHandler.COMMON.entityTiers.get()+add);
-        entityTiers.clear();
-        initMaps(player);
+        syncData();
     }
 
     public static float calculateBonus(float damage,int playerTier, int creatureTier,boolean isPlayerAttacking) {
@@ -365,6 +364,15 @@ public class ATUtil {
             return Integer.parseInt(matcher.group(1));
         }
         return 0;
+    }
+
+    public static boolean isNightmareBoss(LivingEntity entity){
+        return entity.getPersistentData().getBoolean("VPNightmareBoss");
+    }
+
+    public static void syncData(){
+        itemTiers.clear();
+        initMaps();
     }
 
     public static String getBaseItems(){

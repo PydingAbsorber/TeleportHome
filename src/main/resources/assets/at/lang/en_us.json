@@ -11,5 +11,16 @@
   "at.ignored": "Doesn't require matching Tier!",
   "at.discovered": "Not discovered. Use token: %s for jei search.",
   "at.discovered.lang": "discovered",
-  "at.chat.2": "§cThis creature has %s §cTier, your damage significantly lowered."
+  "at.chat.2": "§cThis creature has %s §cTier, your damage significantly lowered.",
+  "at.token.1": "tierone",
+  "at.token.2": "tiertwo",
+  "at.token.3": "tierthree",
+  "at.token.4": "tierfour",
+  "at.token.5": "tierfive",
+  "at.token.6": "tiersix",
+  "at.token.7": "tierseven",
+  "at.token.8": "tiereight",
+  "at.token.9": "tiernine",
+  "at.token.10": "tierten"
+
 }
