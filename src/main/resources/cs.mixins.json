@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.pyding.cs.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "at.refmap.json",
+  "verbose": true,
+  "mixins": [
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
