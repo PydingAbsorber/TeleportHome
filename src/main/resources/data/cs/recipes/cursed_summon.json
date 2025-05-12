@@ -1,13 +1,13 @@
 {
   "type": "minecraft:smithing_transform",
   "template": {
-    "item": "item:cataclysm:ignitium_upgrade_smithing_template"
+    "item": "cataclysm:ignitium_upgrade_smithing_template"
   },
   "addition": {
-    "item": "item:minecraft:netherite_ingot"
+    "item": "minecraft:netherite_ingot"
   },
   "base": {
-    "item": "item:cataclysm:cursed_eye"
+    "item": "cataclysm:cursed_eye"
   },
   "result": {
     "item": "cs:cursed_summon"
