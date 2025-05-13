@@ -19,13 +19,13 @@ plugins {
 
 version = '1.0.1'
 group = 'com.pyding.cs' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = 'CataclysmSummons 1.20.1'
+archivesBaseName = 'CataclysmSummons 1.19.2'
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
 minecraft {
-    mappings channel: 'official', version: '1.20.1'
+    mappings channel: 'official', version: '1.19.2'
 
     runs {
         client {
@@ -126,7 +126,7 @@ dependencies {
 
 
     //1.20.1
-    minecraft 'net.minecraftforge:forge:1.20.1-47.1.44'
+    /*minecraft 'net.minecraftforge:forge:1.20.1-47.1.44'
 
     runtimeOnly fg.deobf("top.theillusivec4.curios:curios-forge:5.7.0+1.20.1")
     compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:5.7.0+1.20.1:api")
@@ -134,16 +134,16 @@ dependencies {
     compileOnly files("libs/lionfish v2.4.jar")
     compileOnly files("libs/cataclysm v2.66.jar")
 
-    runtimeOnly(fg.deobf("mezz.jei:jei-1.20.1-forge:15.2.0.27"))
+    runtimeOnly(fg.deobf("mezz.jei:jei-1.20.1-forge:15.2.0.27"))*/
 
 
 
     //1.19.2
-    /*minecraft 'net.minecraftforge:forge:1.19.2-43.3.2'
+    minecraft 'net.minecraftforge:forge:1.19.2-43.3.2'
     runtimeOnly fg.deobf("top.theillusivec4.curios:curios-forge:1.19.2-5.1.1.0")
     compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:1.19.2-5.1.1.0:api")
     compileOnly files("libs/lionfish v1.8.jar")
-    compileOnly files("libs/cataclysm v2.46.jar")*/
+    compileOnly files("libs/cataclysm v2.46.jar")
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
