@@ -29,7 +29,7 @@ public class VoidSummon extends Item {
         player.startUsingItem(hand);
         if (level instanceof ServerLevel serverLevel) {
             BlockPos foundPos = serverLevel.findNearestMapStructure(
-                    ModTag.EYE_OF_MECH_LOCATED,
+                    ModTag.EYE_OF_RUINED_LOCATED,
                     player.blockPosition(),
                     100,
                     false

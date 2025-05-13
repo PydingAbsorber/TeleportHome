@@ -23,7 +23,7 @@ public class FlameSummon extends Item {
         player.startUsingItem(hand);
         if (level instanceof ServerLevel serverLevel) {
             BlockPos foundPos = serverLevel.findNearestMapStructure(
-                    ModTag.EYE_OF_MECH_LOCATED,
+                    ModTag.EYE_OF_FLAME_LOCATED,
                     player.blockPosition(),
                     100,
                     false
