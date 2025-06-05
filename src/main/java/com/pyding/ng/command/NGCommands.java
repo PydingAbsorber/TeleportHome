@@ -4,8 +4,6 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.pyding.ng.event.EventHandler;
-import com.pyding.ng.network.PacketHandler;
-import com.pyding.ng.network.packets.ServerToClientSync;
 import com.pyding.ng.util.ConfigHandler;
 import com.pyding.ng.util.ZoneUtil;
 import net.minecraft.commands.CommandSourceStack;
@@ -13,12 +11,11 @@ import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.PacketDistributor;
 
 public class NGCommands {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("nogrief")
-                .then(Commands.literal("createZone").requires(sender -> sender.hasPermission(2))
+                .then(Commands.literal("createZone")
                         .then(Commands.argument("name", StringArgumentType.string())
                                 .executes(context -> {
                                     String name = StringArgumentType.getString(context, "name");
@@ -39,14 +36,13 @@ public class NGCommands {
                                 })
                         )
                 )
-                .then(Commands.literal("deleteZone").requires(sender -> sender.hasPermission(2))
+                .then(Commands.literal("deleteZone")
                         .then(Commands.argument("name", StringArgumentType.string())
                                 .executes(context -> {
                                     String name  =StringArgumentType.getString(context, "name");
                                     ServerPlayer player = context.getSource().getPlayerOrException();
                                     ConfigHandler.COMMON.zones.set(ZoneUtil.removeZone(ConfigHandler.COMMON.zones.get().toString(),name,player));
                                     ZoneUtil.sync();
-                                    player.sendSystemMessage(Component.literal("Zone " + name + " was deleted successfully? Idk I'm to lazy to make printers"));
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )
@@ -79,7 +75,7 @@ public class NGCommands {
                                 )
                         )
                 )
-                .then(Commands.literal("yourZoneInfo")
+                .then(Commands.literal("myZones")
                         .executes(context -> {
                             ServerPlayer player = context.getSource().getPlayerOrException();
                             ZoneUtil.print(player);
@@ -103,6 +99,50 @@ public class NGCommands {
                                     String zoneName = StringArgumentType.getString(context, "zoneName");
                                     ServerPlayer player = context.getSource().getPlayerOrException();
                                     ConfigHandler.COMMON.zones.set(ZoneUtil.setStrict(ConfigHandler.COMMON.zones.get().toString(),zoneName,player,false));
+                                    ZoneUtil.sync();
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                        )
+                )
+                .then(Commands.literal("enableInteract")
+                        .then(Commands.argument("zoneName", StringArgumentType.string())
+                                .executes(context -> {
+                                    String zoneName = StringArgumentType.getString(context, "zoneName");
+                                    ServerPlayer player = context.getSource().getPlayerOrException();
+                                    ConfigHandler.COMMON.zones.set(ZoneUtil.setInteract(ConfigHandler.COMMON.zones.get().toString(),zoneName,player,true));
+                                    ZoneUtil.sync();
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                        )
+                )
+                .then(Commands.literal("disableInteract")
+                        .then(Commands.argument("zoneName", StringArgumentType.string())
+                                .executes(context -> {
+                                    String zoneName = StringArgumentType.getString(context, "zoneName");
+                                    ServerPlayer player = context.getSource().getPlayerOrException();
+                                    ConfigHandler.COMMON.zones.set(ZoneUtil.setInteract(ConfigHandler.COMMON.zones.get().toString(),zoneName,player,false));
+                                    ZoneUtil.sync();
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                        )
+                )
+                .then(Commands.literal("enableMobSpawn")
+                        .then(Commands.argument("zoneName", StringArgumentType.string())
+                                .executes(context -> {
+                                    String zoneName = StringArgumentType.getString(context, "zoneName");
+                                    ServerPlayer player = context.getSource().getPlayerOrException();
+                                    ConfigHandler.COMMON.zones.set(ZoneUtil.setMobSpawn(ConfigHandler.COMMON.zones.get().toString(),zoneName,player,true));
+                                    ZoneUtil.sync();
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                        )
+                )
+                .then(Commands.literal("disableMobSpawn")
+                        .then(Commands.argument("zoneName", StringArgumentType.string())
+                                .executes(context -> {
+                                    String zoneName = StringArgumentType.getString(context, "zoneName");
+                                    ServerPlayer player = context.getSource().getPlayerOrException();
+                                    ConfigHandler.COMMON.zones.set(ZoneUtil.setMobSpawn(ConfigHandler.COMMON.zones.get().toString(),zoneName,player,false));
                                     ZoneUtil.sync();
                                     return Command.SINGLE_SUCCESS;
                                 })

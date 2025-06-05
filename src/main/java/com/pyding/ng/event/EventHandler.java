@@ -6,6 +6,8 @@ import com.pyding.ng.util.ZoneUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -71,8 +73,8 @@ public class EventHandler {
 
     @SubscribeEvent
     public static void entityJoin(EntityJoinLevelEvent event){
-        if(ZoneUtil.isInStrictZone(event.getEntity().getOnPos())){
-            if(!(event.getEntity() instanceof Player) || !event.getEntity().getType().getDescriptionId().contains("npc"))
+        if(!ZoneUtil.canSpawn(event.getEntity().getOnPos())){
+            if(!(event.getEntity() instanceof Player) && !isNpc(event.getEntity().getType()) && !(event.getEntity() instanceof ItemEntity))
                 event.setCanceled(true);
         }
     }
@@ -107,6 +109,8 @@ public class EventHandler {
     @SubscribeEvent
     public static void use(PlayerInteractEvent.LeftClickBlock event){
         Player player = event.getEntity();
+        if(!ZoneUtil.canUse(player,event.getPos()))
+            event.setCanceled(true);
         if(event.getItemStack().is(Items.WOODEN_AXE) && !player.level().isClientSide()){
             zoneMarks.get(player).set(0, event.getPos());
             player.sendSystemMessage(Component.literal("First position is set to " + event.getPos()));
@@ -117,10 +121,18 @@ public class EventHandler {
     @SubscribeEvent
     public static void use(PlayerInteractEvent.RightClickBlock event){
         Player player = event.getEntity();
+        if(!ZoneUtil.canUse(player,event.getPos()))
+            event.setCanceled(true);
         if(event.getItemStack().is(Items.WOODEN_AXE) && !player.level().isClientSide()){
             zoneMarks.get(player).set(1, event.getPos());
             player.sendSystemMessage(Component.literal("Second position is set to " + event.getPos()));
             event.setCanceled(true);
         }
+    }
+
+    public static boolean isNpc(EntityType<?> type){
+        if(type.toString().contains("easy_npc"))
+            return true;
+        return false;
     }
 }

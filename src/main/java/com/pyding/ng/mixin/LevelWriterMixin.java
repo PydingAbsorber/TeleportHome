@@ -22,7 +22,7 @@ public abstract class LevelWriterMixin {
             require = 1
     )
     private void onSetBlock(BlockPos pos, BlockState state, int flags, int recursion, CallbackInfoReturnable<Boolean> cir) {
-        if(ZoneUtil.isInStrictZone(pos)) {
+        if(!ZoneUtil.canSetBlock(pos,state,((Level)(Object)this))) {
             cir.setReturnValue(false);
             cir.cancel();
         }
