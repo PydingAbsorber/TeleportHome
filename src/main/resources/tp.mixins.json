@@ -1,12 +1,11 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "com.pyding.ng.mixin",
+  "package": "com.pyding.tp.mixin",
   "compatibilityLevel": "JAVA_17",
   "refmap": "ng.refmap.json",
   "verbose": true,
   "mixins": [
-    "LevelWriterMixin"
   ],
   "client": [
   ],

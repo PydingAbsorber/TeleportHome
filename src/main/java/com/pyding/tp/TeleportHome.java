@@ -1,8 +1,8 @@
-package com.pyding.ng;
+package com.pyding.tp;
 
-import com.pyding.ng.network.PacketHandler;
-import com.pyding.ng.util.ConfigHandler;
-import com.pyding.ng.event.EventHandler;
+import com.pyding.tp.network.PacketHandler;
+import com.pyding.tp.util.ConfigHandler;
+import com.pyding.tp.event.EventHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -11,13 +11,13 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
-@Mod(NoGrief.MODID)
-public class NoGrief
+@Mod(TeleportHome.MODID)
+public class TeleportHome
 {
-    public static final String MODID = "ng";
+    public static final String MODID = "tp";
     public static EventHandler eventHandler;
 
-    public NoGrief()
+    public TeleportHome()
     {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         modEventBus.addListener(this::commonSetup);

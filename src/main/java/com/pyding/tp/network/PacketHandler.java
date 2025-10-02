@@ -1,7 +1,7 @@
-package com.pyding.ng.network;
+package com.pyding.tp.network;
 
-import com.pyding.ng.NoGrief;
-import com.pyding.ng.network.packets.ServerToClientSync;
+import com.pyding.tp.TeleportHome;
+import com.pyding.tp.network.packets.ServerToClientSync;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -20,7 +20,7 @@ public class PacketHandler {
 
     public static void register() {
         SimpleChannel net = NetworkRegistry.ChannelBuilder
-                .named(new ResourceLocation(NoGrief.MODID, "messages"))
+                .named(new ResourceLocation(TeleportHome.MODID, "messages"))
                 .networkProtocolVersion(() -> "1.0")
                 .clientAcceptedVersions(s -> true)
                 .serverAcceptedVersions(s -> true)
